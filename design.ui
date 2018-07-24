@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>751</width>
-    <height>249</height>
+    <height>289</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -139,6 +139,19 @@
     </property>
     <property name="text">
      <string>Download</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_test">
+    <property name="geometry">
+     <rect>
+      <x>550</x>
+      <y>200</y>
+      <width>88</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Test</string>
     </property>
    </widget>
   </widget>

@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(751, 249)
+        MainWindow.resize(751, 289)
         MainWindow.setMaximumSize(QtCore.QSize(16777215, 16777215))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("../../../../../home/kurozero/Pictures/YTDownloader_logo.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -49,6 +49,9 @@ class Ui_MainWindow(object):
         self.btn_download = QtWidgets.QPushButton(self.centralwidget)
         self.btn_download.setGeometry(QtCore.QRect(650, 200, 88, 30))
         self.btn_download.setObjectName("btn_download")
+        self.btn_test = QtWidgets.QPushButton(self.centralwidget)
+        self.btn_test.setGeometry(QtCore.QRect(550, 200, 88, 30))
+        self.btn_test.setObjectName("btn_test")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 751, 27))
@@ -69,4 +72,5 @@ class Ui_MainWindow(object):
         self.lbl_type.setText(_translate("MainWindow", "Download type"))
         self.lbl_extension.setText(_translate("MainWindow", "Video extension"))
         self.btn_download.setText(_translate("MainWindow", "Download"))
+        self.btn_test.setText(_translate("MainWindow", "Test"))
 
