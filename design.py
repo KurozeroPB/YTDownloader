@@ -44,7 +44,7 @@ class Ui_MainWindow(object):
         self.cb_extension.setGeometry(QtCore.QRect(180, 150, 86, 30))
         self.cb_extension.setObjectName("cb_extension")
         self.lbl_extension = QtWidgets.QLabel(self.centralwidget)
-        self.lbl_extension.setGeometry(QtCore.QRect(10, 150, 101, 31))
+        self.lbl_extension.setGeometry(QtCore.QRect(10, 150, 111, 31))
         self.lbl_extension.setObjectName("lbl_extension")
         self.btn_download = QtWidgets.QPushButton(self.centralwidget)
         self.btn_download.setGeometry(QtCore.QRect(650, 200, 88, 30))
@@ -67,6 +67,6 @@ class Ui_MainWindow(object):
         self.lbl_yt.setText(_translate("MainWindow", "YouTube URL/Video ID"))
         self.lbl_resolution.setText(_translate("MainWindow", "Video resolution"))
         self.lbl_type.setText(_translate("MainWindow", "Download type"))
-        self.lbl_extension.setText(_translate("MainWindow", "File extension"))
+        self.lbl_extension.setText(_translate("MainWindow", "Video extension"))
         self.btn_download.setText(_translate("MainWindow", "Download"))
 

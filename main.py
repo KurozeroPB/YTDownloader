@@ -4,6 +4,7 @@ import sys
 import design
 import re
 
+# Simple regex to check the users input
 yt_regex = re.compile("^(http(s)??://)?(www\.)?((youtube\.com/watch\?v=)|(youtu.be/))([a-zA-Z0-9\-_])+$")
 ytid_regex = re.compile("^[a-zA-Z0-9_-]{6,11}$")
 
@@ -18,14 +19,18 @@ class YTDownloader(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.btn_download.clicked.connect(self.download)
         self.cb_resolution.addItems(["1080p", "720p", "480p", "360p", "240p", "166p"])
         self.cb_type.addItems(["video", "audio"])
+        self.cb_type.currentIndexChanged.connect(self.change_extensions)
         self.cb_extension.addItems(["mp4", "webm"])
 
     def download(self):
+        self.setEnabled(False)  # Disable main window
+
         url = self.txt_yt.text()
         download = self.cb_type.currentText()
         quality = self.cb_resolution.currentText()
         file_ext = self.cb_extension.currentText()
 
+        # Check for None or empty string values
         if url is None or url == "":
             self.show_alert(QtWidgets.QMessageBox.Critical, "Video url or id is required", QtWidgets.QMessageBox.Ok)
             return
@@ -39,6 +44,7 @@ class YTDownloader(QtWidgets.QMainWindow, design.Ui_MainWindow):
             self.show_alert(QtWidgets.QMessageBox.Critical, "Extension type is required", QtWidgets.QMessageBox.Ok)
             return
 
+        # Make sure the input is either a youtube url or a video id
         if yt_regex.match(url) is not None:
             link = YouTube(url)
         elif ytid_regex.match(url) is not None:
@@ -47,42 +53,58 @@ class YTDownloader(QtWidgets.QMainWindow, design.Ui_MainWindow):
             self.show_alert(QtWidgets.QMessageBox.Critical, "Invalid input", QtWidgets.QMessageBox.Ok)
             return
 
+        # Register callbacks for progress bar
         link.register_on_complete_callback(self.on_complete)
         link.register_on_progress_callback(self.show_progress_bar)
 
+        # Get the direcory where the file needs to be saved
         savedir = self.open_dir_dialog()
 
+        # Either on cancel or close
+        if savedir.toString() == "":
+            self.setEnabled(True)
+            return
+
+        # Make progress dialog
         self.progress_dialog = QtWidgets.QProgressDialog(labelText="Downloading...", minimum=0)
         self.progress_dialog.setAutoClose(True)
         self.progress_dialog.setValue(0)
         if download == "audio":
-            download_audio = link.streams.filter(subtype=file_ext, res=quality, only_audio=True).first()
+            # Find only audio streams
+            download_audio = link.streams.filter(audio_codec=file_ext, only_audio=True).first()
             if download_audio is None:
-                self.show_alert(QtWidgets.QMessageBox.Critical, "No videos found", QtWidgets.QMessageBox.Ok)
+                self.show_alert(QtWidgets.QMessageBox.Critical, "No audio found", QtWidgets.QMessageBox.Ok)
                 return
+            # Set maximum for the progress bar and open the dialog
             self.progress_dialog.setMaximum(download_audio.filesize)
             self.progress_dialog.open()
+            # Download file to given path
             download_audio.download(savedir.path())
         else:
+            # Find only video streams
             download_video = link.streams.filter(subtype=file_ext, res=quality).first()
             if download_video is None:
                 self.show_alert(QtWidgets.QMessageBox.Critical, "No videos found", QtWidgets.QMessageBox.Ok)
                 return
+            # Set maximum for the progress bar and open the dialog
             self.progress_dialog.setMaximum(download_video.filesize)
             self.progress_dialog.open()
+            # Download file to given path
             download_video.download(savedir.path())
 
     def show_progress_bar(self, _stream, _chunk, _file_handle, bytes_remaining):
+        # Update progress bar
         progress = self.progress_dialog.maximum() - bytes_remaining
         self.progress_dialog.setValue(progress)
 
     def on_complete(self, _stream, _file_handle):
-        self.show_alert(QtWidgets.QMessageBox.NoIcon, "Completed", QtWidgets.QMessageBox.Ok)
+        self.show_alert(QtWidgets.QMessageBox.Information, "Completed", QtWidgets.QMessageBox.Ok)
+        self.setEnabled(True)
 
     def show_alert(self,
                    icon: QtWidgets.QMessageBox.Icon,
                    text: str,
-                   btns: QtWidgets.QMessageBox.StandardButtons or QtWidgets.QMessageBox.StandardButton,
+                   btns: QtWidgets.QMessageBox.StandardButton,
                    info: str = "",
                    title: str = "",
                    def_btn: QtWidgets.QMessageBox.StandardButton = None,
@@ -99,9 +121,19 @@ class YTDownloader(QtWidgets.QMainWindow, design.Ui_MainWindow):
             self.alert.exec_()
 
     def open_dir_dialog(self):
-        options = QtWidgets.QFileDialog.Options()
-        options |= QtWidgets.QFileDialog.DontUseNativeDialog
+        options = QtWidgets.QFileDialog.Options(QtWidgets.QFileDialog.ShowDirsOnly | QtWidgets.QFileDialog.DontUseNativeDialog)
         return QtWidgets.QFileDialog.getExistingDirectoryUrl(self, options=options, caption="Select directory")
+
+    def change_extensions(self):
+        self.cb_extension.clear()
+        if self.cb_type.currentText() == "video":
+            self.lbl_extension.setText("Video extension")
+            self.cb_resolution.setEnabled(True)
+            self.cb_extension.addItems(["mp4", "webm"])
+        elif self.cb_type.currentText() == "audio":
+            self.lbl_extension.setText("Audio codec")
+            self.cb_resolution.setEnabled(False)
+            self.cb_extension.addItems(["opus", "vorbis", "mp4a.40.2"])
 
 
 def main():
